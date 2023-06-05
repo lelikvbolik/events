@@ -1,4 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
 
 
@@ -7,20 +8,18 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError(_("Users must have an email address"))
         email = self.normalize_email(email)
-        user = self.model(email=email)
-        user.set_password(password)
-        user.save()
+        user = self.model(email=email, **extra_fields)
+        user.password = make_password(password)
+        user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, password):
-        """Метод создаёт и возвращает модель `User` с правами
-        суперпользователя (админа)."""
-        if password is None:
-            raise TypeError('Superusers must have a password.')
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
 
-        user = self.create_user(username, email, password)
-        user.is_superuser = True
-        user.is_staff = True
-        user.save()
-
-        return user
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError(_("Superuser must have is_staff=True."))
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError(_("Superuser must have is_superuser=True."))
+        return self.create_user(email, password, **extra_fields)

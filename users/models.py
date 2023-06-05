@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+
+from event_app.models import Organization
 from .managers import CustomUserManager
 from django.db import models
 import os
@@ -9,8 +11,8 @@ from django.template.defaultfilters import slugify
 
 # модель пользователя
 class CustomUser(AbstractUser):
-    email = models.EmailField(verbose_name="email address", max_length=255, unique=True)
-
+    email = models.EmailField(_("email address"), unique=True)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
