@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-
 from event_app.models import Organization
 from .managers import CustomUserManager
 from django.db import models
